@@ -2,6 +2,7 @@
   imports = [
     ./hardware-configuration.nix
     ./web-server.nix
+    ./users.nix
   ];
 
   boot.cleanTmpDir = true;
@@ -13,9 +14,10 @@
   networking.firewall.allowPing = true;
   networking.firewall.allowedTCPPorts = [22];
   networking.firewall.autoLoadConntrackHelpers = true;
+  networking.firewall.checkReversePath = "loose";
   networking.firewall.enable = true;
   networking.firewall.interfaces.eth0.allowedTCPPorts = [22 80 443];
-  networking.firewall.interfaces.eth0.allowedUDPPorts = [];
+  networking.firewall.interfaces.eth0.allowedUDPPorts = [ 41641 ];
   networking.firewall.interfaces.eth1.allowedTCPPorts = [];
   networking.firewall.interfaces.eth1.allowedUDPPorts = [];
   networking.firewall.pingLimit = "--limit 1/minute --limit-burst 5";
