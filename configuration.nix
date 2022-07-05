@@ -1,11 +1,14 @@
 { pkgs, lib, ... }: {
-  imports = [./hardware-configuration.nix];
+  imports = [
+    ./hardware-configuration.nix
+    ./web-server.nix
+  ];
 
   boot.cleanTmpDir = true;
   documentation.enable = true;
   environment.shellAliases.gd = "git diff";
   environment.shellAliases.gs = "git status -sb";
-  environment.systemPackages = with pkgs; [ vim tmux alejandra dogdns skim ripgrep ];
+  environment.systemPackages = with pkgs; [ vim tmux alejandra ];
   networking.domain = "lgmn.io";
   networking.firewall.allowPing = true;
   networking.firewall.allowedTCPPorts = [22];
