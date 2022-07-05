@@ -33,12 +33,4 @@
 
   };
   config.security.polkit.adminIdentities =[ "unix-user:jake" "unix-user:christine" ]; 
-  config.security.sudo.extraRules = [{ 
-    users = [ "jake" "christine" ];
-    runAs = "root";
-    commands = [{ 
-      command = "ALL";
-      options = [ "SETENV" "NOPASSWD" ]; 
-    }];    
-  }];
 }

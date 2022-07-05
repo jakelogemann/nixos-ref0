@@ -65,8 +65,7 @@
   services.tailscale.enable = true;
   services.tailscale.permitCertUid = "jake.logemann@gmail.com";
   services.tailscale.port = 41641;
+  services.openssh.allowSFTP = true;
   system.stateVersion = "22.05";
-  users.defaultUserShell = pkgs.zsh;
-  users.users.root.shell = lib.mkForce pkgs.zsh;
   zramSwap.enable = true;
 }
