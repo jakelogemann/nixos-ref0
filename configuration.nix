@@ -26,9 +26,9 @@
   networking.firewall.interfaces.eth1.allowedUDPPorts = [];
   networking.firewall.pingLimit = "--limit 1/minute --limit-burst 5";
   networking.hostName = "ref";
-  nix.settings.allow-dirty = true;
+  nix.settings.allow-dirty = false;
   nix.settings.experimental-features = ["nix-command" "flakes"];
-  nix.settings.warn-dirty = false;
+  nix.settings.warn-dirty = true;
   programs.bandwhich.enable = true;
   programs.bash.enableCompletion = true;
   programs.bash.enableLsColors = true;
