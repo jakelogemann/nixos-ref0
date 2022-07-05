@@ -8,7 +8,7 @@
   documentation.enable = true;
   environment.shellAliases.gd = "git diff";
   environment.shellAliases.gs = "git status -sb";
-  environment.systemPackages = with pkgs; [ vim tmux alejandra ];
+  environment.systemPackages = with pkgs; [ vim tmux alejandra tailscale ];
   networking.domain = "lgmn.io";
   networking.firewall.allowPing = true;
   networking.firewall.allowedTCPPorts = [22];
@@ -60,6 +60,9 @@
   services.openssh.passwordAuthentication = false;
   services.openssh.permitRootLogin = "prohibit-password";
   services.sshguard.enable = true;
+  services.tailscale.enable = true;
+  services.tailscale.permitCertUid = "jake.logemann@gmail.com";
+  services.tailscale.port = 41641;
   system.stateVersion = "22.05";
   users.defaultUserShell = pkgs.zsh;
   users.users.root.shell = lib.mkForce pkgs.zsh;
