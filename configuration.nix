@@ -1,6 +1,6 @@
 { pkgs, lib, ... }: {
   imports = [
-    ./hardware-configuration.nix
+    ./hardware.nix
     ./web-server.nix
     ./users.nix
   ];
