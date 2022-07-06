@@ -75,6 +75,10 @@
   programs.less.enable = true;
   programs.mtr.enable = true;
   programs.xonsh.enable = true;
+  powerManagement.cpuFreqGovernor = "powersave";
+  security.allowUserNamespaces = true;
+  security.forcePageTableIsolation = true;
+  security.rtkit.enable = true;
   services.do-agent.enable = true;
   services.openssh.allowSFTP = true;
   services.openssh.enable = true;
