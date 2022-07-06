@@ -10,6 +10,7 @@ let
     alejandra
     ripgrep
     jq
+    gh
   ];
 in {
   config.users = {

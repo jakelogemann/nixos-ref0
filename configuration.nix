@@ -42,6 +42,10 @@
   nix.optimise.automatic = true;
   nix.optimise.dates = ["daily"];
   nix.settings.allow-dirty = false;
+  nix.registry.fnctl.flake = builtins.getFlake "github:fnctl/nix";
+  nix.registry.utils.flake = builtins.getFlake "github:numtide/flake-utils";
+  nix.registry.waypoint.flake = builtins.getFlake "github:hashicorp/waypoint";
+  nix.registry.nix-cue.flake = builtins.getFlake "github:jmgilman/nix-cue";
   nix.settings.experimental-features = ["nix-command" "flakes"];
   nix.settings.warn-dirty = true;
   programs.bandwhich.enable = true;
