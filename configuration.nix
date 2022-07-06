@@ -7,25 +7,15 @@
     ./hardware.nix
     ./web-server.nix
     ./users.nix
+    ./neovim.nix
+    ./network.nix
+    ./pkgs.nix
   ];
 
   boot.cleanTmpDir = true;
   documentation.enable = true;
   environment.shellAliases.gd = "git diff";
   environment.shellAliases.gs = "git status -sb";
-  environment.systemPackages = with pkgs; [vim tmux alejandra tailscale];
-  networking.domain = "lgmn.io";
-  networking.firewall.allowPing = true;
-  networking.firewall.allowedTCPPorts = [22];
-  networking.firewall.autoLoadConntrackHelpers = true;
-  networking.firewall.checkReversePath = "loose";
-  networking.firewall.enable = true;
-  networking.firewall.interfaces.eth0.allowedTCPPorts = [22 80 443];
-  networking.firewall.interfaces.eth0.allowedUDPPorts = [41641];
-  networking.firewall.interfaces.eth1.allowedTCPPorts = [];
-  networking.firewall.interfaces.eth1.allowedUDPPorts = [];
-  networking.firewall.pingLimit = "--limit 1/minute --limit-burst 5";
-  networking.hostName = "ref";
   nix.settings.allow-dirty = false;
   nix.settings.experimental-features = ["nix-command" "flakes"];
   nix.settings.warn-dirty = true;
