@@ -155,17 +155,20 @@
     ];
     histSize = 100000;
     interactiveShellInit = ''
-      eval "$(${lib.getExe pkgs.direnv} hook zsh)"
+      autoload -U edit-command-line; zle -N edit-command-line;
+
       hash -d current-sw=/run/current-system/sw
       hash -d booted-sw=/run/booted-system/sw
-      autoload -U edit-command-line; zle -N edit-command-line;
-      bindkey '\\C-x\\C-e' edit-command-line
-      bindkey '\\C-k' up-line-or-history
-      bindkey '\\C-j' down-line-or-history
-      bindkey '\\C-h' backward-word
-      bindkey '\\C-l' forward-word
+
+      bindkey '\C-x\C-e' edit-command-line
+      bindkey '\C-k' up-line-or-history
+      bindkey '\C-j' down-line-or-history
+      bindkey '\C-h' backward-word
+      bindkey '\C-l' forward-word
+
       source "${pkgs.skim}/share/skim/completion.zsh"
       source "${pkgs.skim}/share/skim/key-bindings.zsh"
+      eval "$(${lib.getExe pkgs.direnv} hook zsh)"
       eval "$(${lib.getExe pkgs.navi} widget zsh)"
       eval "$(${lib.getExe pkgs.zoxide} init zsh)"
     '';
