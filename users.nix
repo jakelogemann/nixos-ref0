@@ -10,6 +10,8 @@ let
     alejandra
     ripgrep
     jq
+    navi
+    zoxide
     gh
   ];
 in {

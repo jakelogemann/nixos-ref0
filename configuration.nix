@@ -15,44 +15,26 @@
 
   boot.cleanTmpDir = true;
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
-  boot.kernel.sysctl = {
-    "kernel.dmesg_restrict" = 1;
-    "kernel.kptr_restrict" = 2;
-    "kernel.perf_event_paranoid" = 3;
-    "kernel.randomize_va_space" = 2;
-    "kernel.sysrq" = 0;
-    "kernel.unprivileged_bpf_disabled" = 1;
-    "net.core.bpf_jit_harden" = 2;
-    "net.ipv4.conf.all.accept_redirects" = 1;
-    "net.ipv4.conf.all.log_martians" = 1;
-    "net.ipv4.conf.all.proxy_arp" = 0;
-    "net.ipv4.conf.all.rp_filter" = 1;
-    "net.ipv4.conf.all.send_redirects" = 0;
-    "net.ipv4.conf.default.accept_redirects" = 0;
-    "net.ipv6.conf.all.accept_redirects" = 0;
-    "vm.swappiness" = 1;
-    "net.ipv6.conf.default.accept_redirects" = 0;
-  };
   documentation.enable = true;
-  environment.shellAliases.system-info = "${lib.getExe pkgs.neofetch}";
   environment.shellAliases.ga = "git add";
-  environment.shellAliases.grm = "git rm";
   environment.shellAliases.gb = "git branch";
-  environment.shellAliases.gl = "git log";
   environment.shellAliases.gci = "git commit";
   environment.shellAliases.gco = "git checkout";
   environment.shellAliases.gd = "git diff";
-  environment.shellAliases.gsw = "git switch";
   environment.shellAliases.gf = "git fetch";
-  environment.shellAliases.grb = "git rebase";
   environment.shellAliases.git-vars = "${lib.getExe pkgs.bat} -l=ini --file-name 'git var -l' <(git var -l)";
+  environment.shellAliases.gl = "git log";
+  environment.shellAliases.grb = "git rebase";
+  environment.shellAliases.grm = "git rm";
   environment.shellAliases.gs = "git status -sb";
+  environment.shellAliases.gsw = "git switch";
   environment.shellAliases.l = "ls -alh";
   environment.shellAliases.la = "${lib.getExe pkgs.lsd} -a";
   environment.shellAliases.ll = "${lib.getExe pkgs.lsd} -l";
   environment.shellAliases.lla = "${lib.getExe pkgs.lsd} -la";
   environment.shellAliases.ls = lib.getExe pkgs.lsd;
   environment.shellAliases.lt = "${lib.getExe pkgs.lsd} --tree";
+  environment.shellAliases.system-info = "${lib.getExe pkgs.neofetch}";
   environment.variables.EDITOR = lib.getExe pkgs.neovim;
   nix.autoOptimiseStore = true;
   nix.gc.automatic = true;
@@ -60,13 +42,16 @@
   nix.gc.options = ''--max-freed "$((30 * 1024**3 - 1024 * $(df -P -k /nix/store | tail -n 1 | ${pkgs.gawk}/bin/awk '{ print $4 }')))"'';
   nix.optimise.automatic = true;
   nix.optimise.dates = ["daily"];
-  nix.settings.allow-dirty = false;
   nix.registry.fnctl.flake = builtins.getFlake "github:fnctl/nix";
+  nix.registry.nix-cue.flake = builtins.getFlake "github:jmgilman/nix-cue";
   nix.registry.utils.flake = builtins.getFlake "github:numtide/flake-utils";
   nix.registry.waypoint.flake = builtins.getFlake "github:hashicorp/waypoint";
-  nix.registry.nix-cue.flake = builtins.getFlake "github:jmgilman/nix-cue";
+  nix.allowedUsers = lib.mkForce [ "root" "jake" "christine" ];
+  nix.trustedUsers = lib.mkForce [ "root" ];
+  nix.settings.allow-dirty = false;
   nix.settings.experimental-features = ["nix-command" "flakes"];
   nix.settings.warn-dirty = true;
+  powerManagement.cpuFreqGovernor = "powersave";
   programs.bandwhich.enable = true;
   programs.bash.enableCompletion = true;
   programs.bash.enableLsColors = true;
@@ -75,11 +60,18 @@
   programs.less.enable = true;
   programs.mtr.enable = true;
   programs.xonsh.enable = true;
-  powerManagement.cpuFreqGovernor = "powersave";
   security.allowUserNamespaces = true;
   security.forcePageTableIsolation = true;
   security.rtkit.enable = true;
+  security.virtualisation.flushL1DataCache = "always";
+  services.acpid.enable = true;
   services.do-agent.enable = true;
+  services.earlyoom.enable = true;
+  services.earlyoom.freeMemThreshold = 10;
+  services.earlyoom.freeSwapThreshold = 10;
+  services.fwupd.enable = true;
+  services.journald.extraConfig = lib.concatStringsSep "\n" ["SystemMaxUse=1G"];
+  services.journald.forwardToSyslog = false;
   services.openssh.allowSFTP = true;
   services.openssh.enable = true;
   services.openssh.passwordAuthentication = false;
@@ -88,24 +80,15 @@
   services.tailscale.enable = true;
   services.tailscale.permitCertUid = "jake.logemann@gmail.com";
   services.tailscale.port = 41641;
-  security.virtualisation.flushL1DataCache = "always";
-  services.fwupd.enable = true;
-  services.journald.extraConfig = lib.concatStringsSep "\n" ["SystemMaxUse=1G"];
-  services.journald.forwardToSyslog = false;
-  services.acpid.enable = true;
-  services.earlyoom.enable = true;
-  services.earlyoom.freeMemThreshold = 10;
-  services.earlyoom.freeSwapThreshold = 10;
-  virtualisation.docker.rootless.daemon.settings.default-cgroupns-mode = "private";
-  virtualisation.docker.rootless.daemon.settings.default-ipc-mode = "private";
-  virtualisation.docker.rootless.daemon.settings.default-runtime = "runc";
-  virtualisation.docker.rootless.daemon.settings.experimental = true;
-  virtualisation.docker.rootless.daemon.settings.icc = false;
-  virtualisation.docker.rootless.enable = true;
-  virtualisation.docker.rootless.package = pkgs.docker-edge;
-  virtualisation.docker.rootless.setSocketVariable = true;
   system.stateVersion = "22.05";
+  virtualisation.oci-containers.backend = "podman";
   zramSwap.enable = true;
+
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+    dockerSocket.enable = true;
+  };
 
   programs.git = {
     config.alias.aliases = "!git config --get-regexp '^alias\.' | sed -e 's/^alias\.//' -e 's/\ /\ =\ /'";
@@ -211,9 +194,28 @@
 
       source "${pkgs.skim}/share/skim/completion.zsh"
       source "${pkgs.skim}/share/skim/key-bindings.zsh"
-      eval "$(${lib.getExe pkgs.direnv} hook zsh)"
-      eval "$(${lib.getExe pkgs.navi} widget zsh)"
-      eval "$(${lib.getExe pkgs.zoxide} init zsh)"
+      eval "$(direnv hook zsh)"
+      eval "$(navi widget zsh)"
+      eval "$(zoxide init zsh)"
     '';
+  };
+
+  boot.kernel.sysctl = {
+    "kernel.dmesg_restrict" = 1;
+    "kernel.kptr_restrict" = 2;
+    "kernel.perf_event_paranoid" = 3;
+    "kernel.randomize_va_space" = 2;
+    "kernel.sysrq" = 0;
+    "kernel.unprivileged_bpf_disabled" = 1;
+    "net.core.bpf_jit_harden" = 2;
+    "net.ipv4.conf.all.accept_redirects" = 1;
+    "net.ipv4.conf.all.log_martians" = 1;
+    "net.ipv4.conf.all.proxy_arp" = 0;
+    "net.ipv4.conf.all.rp_filter" = 1;
+    "net.ipv4.conf.all.send_redirects" = 0;
+    "net.ipv4.conf.default.accept_redirects" = 0;
+    "net.ipv6.conf.all.accept_redirects" = 0;
+    "vm.swappiness" = 1;
+    "net.ipv6.conf.default.accept_redirects" = 0;
   };
 }
