@@ -64,20 +64,20 @@
   zramSwap.enable = true;
 
   programs.git = {
-    config.aliases.aliases = "!git config --get-regexp '^alias\.' | sed -e 's/^alias\.//' -e 's/\ /\ =\ /'";
-    config.aliases.amend = "git commit --amend --no-edit";
-    config.aliases.amendall = "git commit --all --amend --edit";
-    config.aliases.amendit = "git commit --amend --edit";
-    config.aliases.b = "branch -lav";
-    config.aliases.force-push = "push --force-with-lease=+HEAD";
-    config.aliases.fp = "fetch --all --prune";
-    config.aliases.lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
-    config.aliases.lglc = "log --not --remotes --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
-    config.aliases.lglcd = "submodule foreach git log --branches --not --remotes --oneline --decorate";
-    config.aliases.loga = "log --graph --decorate --name-status --all";
-    config.aliases.quick-rebase = "rebase --interactive --root --autosquash --auto-stash";
-    config.aliases.remotes = "!git remote -v | sort -k3";
-    config.aliases.st = "status -uno";
+    config.alias.aliases = "!git config --get-regexp '^alias\.' | sed -e 's/^alias\.//' -e 's/\ /\ =\ /'";
+    config.alias.amend = "git commit --amend --no-edit";
+    config.alias.amendall = "git commit --all --amend --edit";
+    config.alias.amendit = "git commit --amend --edit";
+    config.alias.b = "branch -lav";
+    config.alias.force-push = "push --force-with-lease=+HEAD";
+    config.alias.fp = "fetch --all --prune";
+    config.alias.lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
+    config.alias.lglc = "log --not --remotes --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
+    config.alias.lglcd = "submodule foreach git log --branches --not --remotes --oneline --decorate";
+    config.alias.loga = "log --graph --decorate --name-status --all";
+    config.alias.quick-rebase = "rebase --interactive --root --autosquash --auto-stash";
+    config.alias.remotes = "!git remote -v | sort -k3";
+    config.alias.st = "status -uno";
     config.commit.gpgSign = false;
     config.core.editor = lib.getExe pkgs.neovim;
     config.core.pager = lib.getExe pkgs.delta;
