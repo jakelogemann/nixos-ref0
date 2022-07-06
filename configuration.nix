@@ -3,7 +3,7 @@
   pkgs,
   lib,
   ...
-}: {
+}: with lib; {
   imports = [
     ./hardware.nix
     ./web-server.nix
@@ -12,6 +12,277 @@
     ./network.nix
     ./pkgs.nix
   ];
+
+  networking = {
+    enableIPv6 = true;
+    firewall = {
+      allowPing = true;
+      allowedTCPPorts = [22];
+      allowedUDPPorts = [];
+      autoLoadConntrackHelpers = true;
+      checkReversePath = "loose";
+      enable = true;
+      logRefusedConnections = true;
+      logRefusedPackets = true;
+      logReversePathDrops = true;
+      pingLimit = "--limit 1/minute --limit-burst 5";
+      interfaces.eth0.allowedTCPPorts = [22 80 443];
+      interfaces.eth0.allowedUDPPorts = [41641];
+      interfaces.eth1.allowedTCPPorts = [];
+      interfaces.eth1.allowedUDPPorts = [];
+      rejectPackets = false;
+    };
+    nameservers = mkForce ["127.0.0.1" "::1"];
+    resolvconf.enable = mkForce false;
+    dhcpcd.extraConfig = mkForce "nohook resolv.conf";
+    networkmanager.dns = mkForce "none";
+    hostName = "ref";
+    domain = "lgmn.io";
+    useDHCP = false;
+    interfaces.eth0.useDHCP = true;
+    interfaces.eth1.useDHCP = true;
+    useHostResolvConf = true;
+  };
+
+  environment.systemPackages = (with pkgs; [
+    alejandra
+    jq
+    skim
+    navi
+    direnv
+    zoxide
+    ripgrep
+    bat
+    lsd
+    dogdns
+    (writeShellScriptBin "nixos-repl" "exec nix repl '<nixpkgs/nixos>'")
+  ]);
+
+  services.caddy = {
+    enable = true;
+    globalConfig = ''
+      debug
+      auto_https ignore_loaded_certs
+      servers :443 {
+        protocol {
+          experimental_http3
+        }
+      }
+      servers :80 {
+        protocol {
+          allow_h2c
+        }
+      }
+    '';
+    extraConfig = ''
+      ref.lgmn.io, lgmn.io {
+        respond "Hello!"
+      }
+    '';
+  };
+
+  programs.neovim = {
+    enable = true;
+    vimAlias = true;
+    withPython3 = true;
+    defaultEditor = true;
+    viAlias = true;
+    configure.packages.default.start = with pkgs.vimPlugins; [
+      packer-nvim
+      vim-lastplace
+      # nvim-tree-lua
+      telescope-nvim
+      nvim-lspconfig
+      vim-nix
+      nvim-web-devicons
+      i3config-vim
+      vim-easy-align
+      vim-gnupg
+      vim-cue
+      vim-go
+      vim-hcl
+      # which-key-nvim
+      # toggleterm-nvim
+      (nvim-treesitter.withPlugins (p:
+        builtins.map (n: p."tree-sitter-${n}") [
+          "bash"
+          "c"
+          "comment"
+          "cpp"
+          "css"
+          "go"
+          "html"
+          "json"
+          "lua"
+          "make"
+          "markdown"
+          "nix"
+          "python"
+          "ruby"
+          "rust"
+          "toml"
+          "vim"
+          "yaml"
+        ]))
+      onedarkpro-nvim
+    ];
+
+    configure.customRC = ''
+      colorscheme onedarkpro
+      set number nobackup noswapfile tabstop=2 shiftwidth=2 softtabstop=2 nocompatible autoread
+      set expandtab smartcase autoindent nostartofline hlsearch incsearch mouse=a
+      set cmdheight=2 wildmenu showcmd cursorline ruler spell foldmethod=syntax nowrap
+      set backspace=indent,eol,start background=dark
+      let mapleader=' '
+
+      if has("user_commands")
+        command! -bang -nargs=? -complete=file E e<bang> <args>
+        command! -bang -nargs=? -complete=file W w<bang> <args>
+        command! -bang -nargs=? -complete=file Wq wq<bang> <args>
+        command! -bang -nargs=? -complete=file WQ wq<bang> <args>
+        command! -bang Wa wa<bang>
+        command! -bang WA wa<bang>
+        command! -bang Q q<bang>
+        command! -bang QA qa<bang>
+        command! -bang Qa qa<bang>
+      endif
+
+      function! NumberToggle()
+        if(&relativenumber == 1) set nu nornu
+        else set nonu rnu
+        endif
+      endfunc
+
+      nnoremap <leader>r :call NumberToggle()<cr>
+      nnoremap <silent> <C-e> <CMD>NvimTreeToggle<CR>
+      nnoremap <silent> <leader>e <CMD>NvimTreeToggle<CR>
+      nnoremap <silent> <leader>ff <CMD>Telescope find_files<CR>
+      nnoremap <silent> <leader>fr <CMD>Telescope symbols<CR>
+      nnoremap <silent> <leader>fR <CMD>Telescope registers<CR>
+      nnoremap <silent> <leader>fz <CMD>Telescope current_buffer_fuzzy_find<CR>
+      nnoremap <silent> <leader>fm <CMD>Telescope marks<CR>
+      nnoremap <silent> <leader>fH <CMD>Telescope help_tags<CR>
+      nnoremap <silent> <leader>fM <CMD>Telescope man_pages<CR>
+      nnoremap <silent> <leader>fc <CMD>Telescope commands<CR>
+
+    '';
+  };
+
+  services.dnscrypt-proxy2 = {
+    enable = mkForce true;
+    settings = {
+      # Immediately respond to A and AAAA queries for host names without a
+      # domain name.
+      block_unqualified = true;
+      # Immediately respond to queries for local zones instead
+      # of leaking them to upstream resolvers (always causing errors or
+      # timeouts).
+      block_undelegated = true;
+      # ------------------------
+      server_names = ["cloudflare" "cloudflare-ipv6" "cloudflare-security" "cloudflare-security-ipv6"];
+      ipv6_servers = true;
+      ipv4_servers = true;
+      use_syslog = true;
+      require_nolog = true;
+      require_nofilter = false;
+      edns_client_subnet = ["0.0.0.0/0" "2001:db8::/32"];
+      require_dnssec = true;
+      blocked_query_response = "refused";
+      block_ipv6 = false;
+
+      allowed_ips.allowed_ips_file =
+        /*
+         Allowed IP lists support the same patterns as IP blocklists
+         If an IP response matches an allow ip entry, the corresponding session
+         will bypass IP filters.
+         
+         Time-based rules are also supported to make some websites only accessible at specific times of the day.
+         */
+        pkgs.writeText "allowed_ips" ''
+        '';
+
+      cloaking_rules =
+        /*
+         Cloaking returns a predefined address for a specific name.
+         In addition to acting as a HOSTS file, it can also return the IP address
+         of a different name. It will also do CNAME flattening.
+         */
+        pkgs.writeText "cloaking_rules" ''
+          # The following rules force "safe" (without adult content) search
+          # results from Google, Bing and YouTube.
+          www.google.*             forcesafesearch.google.com
+          www.bing.com             strict.bing.com
+          =duckduckgo.com          safe.duckduckgo.com
+          www.youtube.com          restrictmoderate.youtube.com
+          m.youtube.com            restrictmoderate.youtube.com
+          youtubei.googleapis.com  restrictmoderate.youtube.com
+          youtube.googleapis.com   restrictmoderate.youtube.com
+          www.youtube-nocookie.com restrictmoderate.youtube.com
+        '';
+
+      forwarding_rules = pkgs.writeText "forwarding_rules" "";
+      cloak_ttl = 600;
+      allowed_names.allowed_names_file = pkgs.writeText "allowed_names" "";
+      blocked_names.blocked_names_file = pkgs.writeText "blocked_names" "";
+      blocked_ips.blocked_ips_file = pkgs.writeText "blocked_ips" "";
+      query_log.file = "/dev/stdout";
+      query_log.ignored_qtypes = ["DNSKEY"];
+      blocked_names.log_file = "/dev/stdout";
+      allowed_ips.log_file = "/dev/stdout";
+      blocked_ips.log_file = "/dev/stdout";
+      allowed_names.log_file = "/dev/stdout";
+      sources = {
+        public-resolvers = {
+          urls = [
+            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
+            "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
+          ];
+          cache_file = "/var/lib/dnscrypt-proxy2/public-resolvers.md";
+          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+          refresh_delay = 72;
+          prefix = "";
+        };
+        relays = {
+          urls = [
+            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md"
+            "https://download.dnscrypt.info/resolvers-list/v3/relays.md"
+            "https://ipv6.download.dnscrypt.info/resolvers-list/v3/relays.md"
+            "https://download.dnscrypt.net/resolvers-list/v3/relays.md"
+          ];
+          cache_file = "/var/lib/dnscrypt-proxy2/relays.md";
+          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+          refresh_delay = 72;
+          prefix = "";
+        };
+        odoh-servers = {
+          urls = [
+            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-servers.md"
+            "https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md"
+            "https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-servers.md"
+            "https://download.dnscrypt.net/resolvers-list/v3/odoh-servers.md"
+          ];
+          cache_file = "/var/lib/dnscrypt-proxy2/odoh-servers.md";
+          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+          refresh_delay = 24;
+          prefix = "";
+        };
+        odoh-relays = {
+          urls = [
+            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-relays.md"
+            "https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md"
+            "https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-relays.md"
+            "https://download.dnscrypt.net/resolvers-list/v3/odoh-relays.md"
+          ];
+          cache_file = "/var/lib/dnscrypt-proxy2/odoh-relays.md";
+          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+          refresh_delay = 24;
+          prefix = "";
+        };
+      };
+    };
+  };
+
+  systemd.services.dnscrypt-proxy2.serviceConfig.StateDirectory = mkForce "dnscrypt-proxy2";
 
   boot.cleanTmpDir = true;
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
