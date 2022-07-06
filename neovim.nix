@@ -7,9 +7,11 @@
   programs.neovim = {
     enable = true;
     vimAlias = true;
+    withPython3 = true;
     defaultEditor = true;
     viAlias = true;
     configure.packages.default.start = with pkgs.vimPlugins; [
+      packer-nvim
       vim-lastplace
       # nvim-tree-lua
       telescope-nvim

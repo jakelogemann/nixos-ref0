@@ -14,6 +14,7 @@
 
   boot.cleanTmpDir = true;
   documentation.enable = true;
+  environment.shellAliases.system-info = "${lib.getExe pkgs.neofetch}";
   environment.shellAliases.ga = "git add";
   environment.shellAliases.grm = "git rm";
   environment.shellAliases.gb = "git branch";
@@ -33,7 +34,7 @@
   environment.shellAliases.ls = lib.getExe pkgs.lsd;
   environment.shellAliases.lt = "${lib.getExe pkgs.lsd} --tree";
   environment.variables.EDITOR = lib.getExe pkgs.neovim;
-  nix.autoOptimiseStore = true; 
+  nix.autoOptimiseStore = true;
   nix.gc.automatic = true;
   nix.gc.dates = "daily";
   nix.gc.options = ''--max-freed "$((30 * 1024**3 - 1024 * $(df -P -k /nix/store | tail -n 1 | ${pkgs.gawk}/bin/awk '{ print $4 }')))"'';
@@ -45,57 +46,11 @@
   programs.bandwhich.enable = true;
   programs.bash.enableCompletion = true;
   programs.bash.enableLsColors = true;
-  programs.git.config.aliases.aliases = "!git config --get-regexp '^alias\.' | sed -e 's/^alias\.//' -e 's/\ /\ =\ /'";
-  programs.git.config.aliases.amend = "git commit --amend --no-edit";
-  programs.git.config.aliases.amendall = "git commit --all --amend --edit";
-  programs.git.config.aliases.amendit = "git commit --amend --edit";
-  programs.git.config.aliases.b = "branch -lav";
-  programs.git.config.aliases.force-push = "push --force-with-lease=+HEAD";
-  programs.git.config.aliases.fp = "fetch --all --prune";
-  programs.git.config.aliases.lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
-  programs.git.config.aliases.lglc = "log --not --remotes --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
-  programs.git.config.aliases.lglcd = "submodule foreach git log --branches --not --remotes --oneline --decorate";
-  programs.git.config.aliases.loga = "log --graph --decorate --name-status --all";
-  programs.git.config.aliases.quick-rebase = "rebase --interactive --root --autosquash --auto-stash";
-  programs.git.config.aliases.remotes = "!git remote -v | sort -k3";
-  programs.git.config.aliases.st = "status -uno";
-  programs.git.config.commit.gpgSign = false;
-  programs.git.config.core.editor = lib.getExe pkgs.neovim;
-  programs.git.config.core.pager = lib.getExe pkgs.delta;
-  programs.git.config.init.defaultBranch = "main";
-  programs.git.config.interactive.difffilter = "${lib.getExe pkgs.delta} --color-only";
-  programs.git.config.pull.ff = true;
-  programs.git.config.pull.rebase = true;
-  programs.git.config.url."https://github.com/".insteadOf = ["gh:" "github:"];
-  programs.git.enable = true;
-  programs.git.lfs.enable = true;
   programs.htop.enable = true;
   programs.iftop.enable = true;
   programs.less.enable = true;
   programs.mtr.enable = true;
-  programs.neovim.configure.packages.system.start = with pkgs.vimPlugins; [vim-nix packer-nvim];
-  programs.neovim.defaultEditor = true;
-  programs.neovim.enable = true;
-  programs.neovim.viAlias = true;
-  programs.neovim.vimAlias = true;
-  programs.neovim.withPython3 = true;
-  programs.starship.enable = true;
-  programs.tmux.aggressiveResize = true;
-  programs.tmux.baseIndex = 1;
-  programs.tmux.enable = true;
-  programs.tmux.keyMode = "vi";
-  programs.tmux.newSession = true;
-  programs.tmux.plugins = with pkgs.tmuxPlugins; [nord];
-  programs.tmux.terminal = "tmux-256color";
   programs.xonsh.enable = true;
-  programs.zsh.autosuggestions.enable = true;
-  programs.zsh.enable = true;
-  programs.zsh.enableBashCompletion = true;
-  programs.zsh.enableCompletion = true;
-  programs.zsh.enableGlobalCompInit = true;
-  programs.zsh.syntaxHighlighting.enable = true;
-  programs.zsh.syntaxHighlighting.highlighters = ["main" "brackets" "pattern" "line"];
-  programs.zsh.syntaxHighlighting.styles.alias = "fg=magenta,bold";
   services.do-agent.enable = true;
   services.openssh.allowSFTP = true;
   services.openssh.enable = true;
@@ -107,4 +62,114 @@
   services.tailscale.port = 41641;
   system.stateVersion = "22.05";
   zramSwap.enable = true;
+
+  programs.git = {
+    config.aliases.aliases = "!git config --get-regexp '^alias\.' | sed -e 's/^alias\.//' -e 's/\ /\ =\ /'";
+    config.aliases.amend = "git commit --amend --no-edit";
+    config.aliases.amendall = "git commit --all --amend --edit";
+    config.aliases.amendit = "git commit --amend --edit";
+    config.aliases.b = "branch -lav";
+    config.aliases.force-push = "push --force-with-lease=+HEAD";
+    config.aliases.fp = "fetch --all --prune";
+    config.aliases.lg = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cd) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
+    config.aliases.lglc = "log --not --remotes --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
+    config.aliases.lglcd = "submodule foreach git log --branches --not --remotes --oneline --decorate";
+    config.aliases.loga = "log --graph --decorate --name-status --all";
+    config.aliases.quick-rebase = "rebase --interactive --root --autosquash --auto-stash";
+    config.aliases.remotes = "!git remote -v | sort -k3";
+    config.aliases.st = "status -uno";
+    config.commit.gpgSign = false;
+    config.core.editor = lib.getExe pkgs.neovim;
+    config.core.pager = lib.getExe pkgs.delta;
+    config.init.defaultBranch = "main";
+    config.interactive.difffilter = "${lib.getExe pkgs.delta} --color-only";
+    config.pull.ff = true;
+    config.pull.rebase = true;
+    config.url."https://github.com/".insteadOf = ["gh:" "github:"];
+    enable = true;
+    lfs.enable = true;
+  };
+
+  programs.tmux = {
+    enable = true;
+    aggressiveResize = true;
+    newSession = true;
+    keyMode = "vi";
+    baseIndex = 1;
+    reverseSplit = true;
+    secureSocket = true;
+    shortcut = "a";
+    terminal = "tmux-256color";
+    plugins = with pkgs.tmuxPlugins; [pain-control onedark-theme sensible];
+  };
+
+  programs.starship = {
+    enable = true;
+    settings.add_newline = false;
+    settings.format = "$character";
+    settings.right_format = "$all";
+    settings.scan_timeout = 10;
+    settings.character.success_symbol = "[➜](bold green)";
+    settings.character.error_symbol = "[➜](bold red)";
+    settings.character.vicmd_symbol = "[](bold magenta)";
+    #settings.character.continuation_prompt = "[▶▶](dim cyan)";
+  };
+
+  programs.zsh = {
+    enable = true;
+    enableBashCompletion = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    syntaxHighlighting.highlighters = ["main" "brackets" "pattern" "root" "line"];
+    syntaxHighlighting.styles.alias = "fg=magenta,bold";
+    vteIntegration = true;
+    autosuggestions.extraConfig.ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
+    autosuggestions.highlightStyle = "fg=cyan";
+    autosuggestions.strategy = ["completion"];
+    histFile = "$HOME/.zsh_history";
+    setOptions = [
+      "AUTO_CD"
+      "AUTO_PUSHD"
+      "HIST_IGNORE_DUPS"
+      "SHARE_HISTORY"
+      "HIST_FCNTL_LOCK"
+      "EXTENDED_HISTORY"
+      "RM_STAR_WAIT"
+      "CD_SILENT"
+      "CHASE_DOTS"
+      "CHASE_LINKS"
+      "PUSHD_IGNORE_DUPS"
+      "PUSHD_MINUS"
+      "PUSHD_SILENT"
+      "PUSHD_TO_HOME"
+      "COMPLETE_ALIASES"
+      "EXTENDED_HISTORY"
+      "BASH_AUTO_LIST"
+      "INC_APPEND_HISTORY"
+      "INTERACTIVE_COMMENTS"
+      "MENU_COMPLETE"
+      "HIST_SAVE_NO_DUPS"
+      "HIST_IGNORE_SPACE"
+      "HIST_EXPIRE_DUPS_FIRST"
+    ];
+    histSize = 100000;
+    shellInit = with pkgs; ''
+      autoload -Uz colors && colors;
+      zstyle ':vcs_info:*' enable git cvs svn hg
+      eval "$(${lib.getExe direnv} hook zsh)"
+      hash -d current-sw=/run/current-system/sw
+      hash -d booted-sw=/run/booted-system/sw
+      autoload -U edit-command-line; zle -N edit-command-line;
+      bindkey '\\C-x\\C-e' edit-command-line
+      bindkey '\\C-k' up-line-or-history
+      bindkey '\\C-j' down-line-or-history
+      bindkey '\\C-h' backward-word
+      bindkey '\\C-l' forward-word
+      source "${skim}/share/skim/completion.zsh"
+      source "${skim}/share/skim/key-bindings.zsh"
+      eval "$(${lib.getExe navi} widget zsh)"
+      eval "$(${lib.getExe zoxide} init zsh)"
+    '';
+  };
 }
