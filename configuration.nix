@@ -15,7 +15,7 @@
 
   boot.cleanTmpDir = true;
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
-  documentation.enable = true;
+  documentation.enable = false;
   environment.shellAliases.ga = "git add";
   environment.shellAliases.gb = "git branch";
   environment.shellAliases.gci = "git commit";
@@ -36,21 +36,18 @@
   environment.shellAliases.lt = "${lib.getExe pkgs.lsd} --tree";
   environment.shellAliases.system-info = "${lib.getExe pkgs.neofetch}";
   environment.variables.EDITOR = lib.getExe pkgs.neovim;
+  nix.allowedUsers = lib.mkForce [ "root" "jake" "christine" ];
   nix.autoOptimiseStore = true;
   nix.gc.automatic = true;
   nix.gc.dates = "daily";
   nix.gc.options = ''--max-freed "$((30 * 1024**3 - 1024 * $(df -P -k /nix/store | tail -n 1 | ${pkgs.gawk}/bin/awk '{ print $4 }')))"'';
   nix.optimise.automatic = true;
   nix.optimise.dates = ["daily"];
-  nix.registry.fnctl.flake = builtins.getFlake "github:fnctl/nix";
-  nix.registry.nix-cue.flake = builtins.getFlake "github:jmgilman/nix-cue";
-  nix.registry.utils.flake = builtins.getFlake "github:numtide/flake-utils";
-  nix.registry.waypoint.flake = builtins.getFlake "github:hashicorp/waypoint";
-  nix.allowedUsers = lib.mkForce [ "root" "jake" "christine" ];
-  nix.trustedUsers = lib.mkForce [ "root" ];
-  nix.settings.allow-dirty = false;
+  nix.settings.allow-dirty = true;
   nix.settings.experimental-features = ["nix-command" "flakes"];
-  nix.settings.warn-dirty = true;
+  nix.settings.http-connections = 0;
+  nix.settings.warn-dirty = false;
+  nix.trustedUsers = lib.mkForce [ "root" ];
   powerManagement.cpuFreqGovernor = "powersave";
   programs.bandwhich.enable = true;
   programs.bash.enableCompletion = true;
@@ -66,9 +63,9 @@
   security.virtualisation.flushL1DataCache = "always";
   services.acpid.enable = true;
   services.do-agent.enable = true;
-  services.earlyoom.enable = true;
-  services.earlyoom.freeMemThreshold = 10;
-  services.earlyoom.freeSwapThreshold = 10;
+# services.earlyoom.enable = true;
+# services.earlyoom.freeMemThreshold = 10;
+# services.earlyoom.freeSwapThreshold = 10;
   services.fwupd.enable = true;
   services.journald.extraConfig = lib.concatStringsSep "\n" ["SystemMaxUse=1G"];
   services.journald.forwardToSyslog = false;
@@ -133,12 +130,22 @@
   programs.starship = {
     enable = true;
     settings.add_newline = false;
-    settings.format = "$character";
-    settings.right_format = "$all";
+    # settings.format = "$character";
+    # settings.right_format = "$all";
     settings.scan_timeout = 10;
     settings.character.success_symbol = "[➜](bold green)";
     settings.character.error_symbol = "[➜](bold red)";
     settings.character.vicmd_symbol = "[](bold magenta)";
+    settings.git_status.disabled = true;
+    settings.hostname.ssh_only = true;
+    settings.jobs.symbol = "⊕";
+    settings.python.symbol = "py ";
+    settings.nodejs.symbol = "js ";
+    settings.golang.symbol = "go ";
+    settings.username.disabled = true;
+    settings.localip.disabled = true;
+    settings.ruby.symbol = "rb ";
+    settings.rust.symbol = "rs ";
     #settings.character.continuation_prompt = "[▶▶](dim cyan)";
   };
 
@@ -182,10 +189,13 @@
     histSize = 100000;
     interactiveShellInit = ''
       autoload -U edit-command-line; zle -N edit-command-line;
+      autoload -U select-word-style && select-word-style bash;
 
       hash -d current-sw=/run/current-system/sw
       hash -d booted-sw=/run/booted-system/sw
 
+      bindkey '\C-a' beginning-of-line
+      bindkey '\C-e' end-of-line
       bindkey '\C-x\C-e' edit-command-line
       bindkey '\C-k' up-line-or-history
       bindkey '\C-j' down-line-or-history

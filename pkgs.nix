@@ -10,6 +10,7 @@
     navi
     direnv
     zoxide
+    ripgrep
     bat
     lsd
     dogdns
