@@ -14,6 +14,25 @@
   ];
 
   boot.cleanTmpDir = true;
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
+  boot.kernel.sysctl = {
+    "kernel.dmesg_restrict" = 1;
+    "kernel.kptr_restrict" = 2;
+    "kernel.perf_event_paranoid" = 3;
+    "kernel.randomize_va_space" = 2;
+    "kernel.sysrq" = 0;
+    "kernel.unprivileged_bpf_disabled" = 1;
+    "net.core.bpf_jit_harden" = 2;
+    "net.ipv4.conf.all.accept_redirects" = 1;
+    "net.ipv4.conf.all.log_martians" = 1;
+    "net.ipv4.conf.all.proxy_arp" = 0;
+    "net.ipv4.conf.all.rp_filter" = 1;
+    "net.ipv4.conf.all.send_redirects" = 0;
+    "net.ipv4.conf.default.accept_redirects" = 0;
+    "net.ipv6.conf.all.accept_redirects" = 0;
+    "vm.swappiness" = 1;
+    "net.ipv6.conf.default.accept_redirects" = 0;
+  };
   documentation.enable = true;
   environment.shellAliases.system-info = "${lib.getExe pkgs.neofetch}";
   environment.shellAliases.ga = "git add";
@@ -65,6 +84,22 @@
   services.tailscale.enable = true;
   services.tailscale.permitCertUid = "jake.logemann@gmail.com";
   services.tailscale.port = 41641;
+  security.virtualisation.flushL1DataCache = "always";
+  services.fwupd.enable = true;
+  services.journald.extraConfig = lib.concatStringsSep "\n" ["SystemMaxUse=1G"];
+  services.journald.forwardToSyslog = false;
+  services.acpid.enable = true;
+  services.earlyoom.enable = true;
+  services.earlyoom.freeMemThreshold = 10;
+  services.earlyoom.freeSwapThreshold = 10;
+  virtualisation.docker.rootless.daemon.settings.default-cgroupns-mode = "private";
+  virtualisation.docker.rootless.daemon.settings.default-ipc-mode = "private";
+  virtualisation.docker.rootless.daemon.settings.default-runtime = "runc";
+  virtualisation.docker.rootless.daemon.settings.experimental = true;
+  virtualisation.docker.rootless.daemon.settings.icc = false;
+  virtualisation.docker.rootless.enable = true;
+  virtualisation.docker.rootless.package = pkgs.docker-edge;
+  virtualisation.docker.rootless.setSocketVariable = true;
   system.stateVersion = "22.05";
   zramSwap.enable = true;
 

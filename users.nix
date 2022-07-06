@@ -15,6 +15,9 @@ let
 in {
   config.users = {
     mutableUsers = false;
+    groups.docker = {
+      members = ["root" "jake" "christine"];
+    };
     users.jake = {
       autoSubUidGidRange = true;
       isNormalUser = true;
