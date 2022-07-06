@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   ...
@@ -98,7 +99,7 @@
     baseIndex = 1;
     reverseSplit = true;
     secureSocket = true;
-    shortcut = "a";
+    shortcut = "b";
     terminal = "tmux-256color";
     plugins = with pkgs.tmuxPlugins; [pain-control onedark-theme sensible];
   };
@@ -123,7 +124,6 @@
     syntaxHighlighting.enable = true;
     syntaxHighlighting.highlighters = ["main" "brackets" "pattern" "root" "line"];
     syntaxHighlighting.styles.alias = "fg=magenta,bold";
-    vteIntegration = true;
     autosuggestions.extraConfig.ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
     autosuggestions.highlightStyle = "fg=cyan";
     autosuggestions.strategy = ["completion"];
@@ -154,10 +154,8 @@
       "HIST_EXPIRE_DUPS_FIRST"
     ];
     histSize = 100000;
-    shellInit = with pkgs; ''
-      autoload -Uz colors && colors;
-      zstyle ':vcs_info:*' enable git cvs svn hg
-      eval "$(${lib.getExe direnv} hook zsh)"
+    interactiveShellInit = ''
+      eval "$(${lib.getExe pkgs.direnv} hook zsh)"
       hash -d current-sw=/run/current-system/sw
       hash -d booted-sw=/run/booted-system/sw
       autoload -U edit-command-line; zle -N edit-command-line;
@@ -166,10 +164,10 @@
       bindkey '\\C-j' down-line-or-history
       bindkey '\\C-h' backward-word
       bindkey '\\C-l' forward-word
-      source "${skim}/share/skim/completion.zsh"
-      source "${skim}/share/skim/key-bindings.zsh"
-      eval "$(${lib.getExe navi} widget zsh)"
-      eval "$(${lib.getExe zoxide} init zsh)"
+      source "${pkgs.skim}/share/skim/completion.zsh"
+      source "${pkgs.skim}/share/skim/key-bindings.zsh"
+      eval "$(${lib.getExe pkgs.navi} widget zsh)"
+      eval "$(${lib.getExe pkgs.zoxide} init zsh)"
     '';
   };
 }
