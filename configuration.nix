@@ -7,7 +7,6 @@
 with lib; {
   imports = [
     ./hardware.nix
-    ./users.nix
   ];
 
   boot = {
@@ -94,7 +93,9 @@ with lib; {
       rejectPackets = false;
     };
     nameservers = mkForce ["127.0.0.1" "::1"];
+    usePredictableInterfaceNames = lib.mkForce false;
     resolvconf.enable = mkForce false;
+    dhcpcd.enable = false;
     dhcpcd.extraConfig = mkForce "nohook resolv.conf";
     networkmanager.dns = mkForce "none";
     hostName = "ref";

@@ -12,10 +12,8 @@
   };
 
   networking = {
-    nameservers = ["67.207.67.3" "67.207.67.2"];
     defaultGateway = "161.35.96.1";
     defaultGateway6 = "2604:a880:400:d0::1";
-    dhcpcd.enable = false;
     usePredictableInterfaceNames = lib.mkForce false;
     interfaces = {
       eth0 = {
